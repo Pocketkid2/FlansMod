@@ -490,16 +490,23 @@ public abstract class EntityDriveable extends Entity implements IControllable, I
 				EntitySeat[] vehicleSeats = getSeats();
 				EntitySeat playerSeat = getSeat(player);
 				EnumHand hand = player.getActiveHand();
-				if(vehicleSeats.length > (playerSeat.getExpectedSeatID() + 1))
+				
+				// Find the next available empty seat
+				int currentSeatID = playerSeat.getExpectedSeatID();
+				int newSeatID = (currentSeatID + 1) % vehicleSeats.length;
+				int seatsChecked = 0;
+				
+				// Loop through seats to find an empty one
+				while(seatsChecked < vehicleSeats.length)
 				{
-					int newSeatID = playerSeat.getExpectedSeatID() + 1;
 					EntitySeat newSeat = getSeat(newSeatID);
-					newSeat.processInitialInteract(player, hand);
-				}
-				else
-				{
-					EntitySeat newSeat = getSeat(0);
-					newSeat.processInitialInteract(player, hand);
+					if(newSeat != null && newSeat.getControllingPassenger() == null)
+					{
+						newSeat.processInitialInteract(player, hand);
+						break;
+					}
+					newSeatID = (newSeatID + 1) % vehicleSeats.length;
+					seatsChecked++;
 				}
 				return true;
 			}
